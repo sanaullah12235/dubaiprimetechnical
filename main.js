@@ -155,3 +155,85 @@ setInterval(() => {
 
 // Initialize
 showSlide(index);
+
+//tesimonial 
+/* ===== Universal Slider Fix ===== */
+const initSliders = () => {
+  // Select all sliders on the page (Pools, Testimonials, etc.)
+  const sliders = document.querySelectorAll('.slider, .testimonial-slider');
+
+  sliders.forEach((slider) => {
+    const track = slider.querySelector('.slider-track');
+    const slides = Array.from(track.children);
+    const nextBtn = slider.querySelector('[data-slider-next]');
+    const prevBtn = slider.querySelector('[data-slider-prev]');
+    const dotsContainer = slider.querySelector('.slider-dots');
+
+    let index = 0;
+
+    // IMPORTANT: Determine how many slides to show at once
+    // For Testimonials we want 3 on desktop, for Pools we want 1.
+    const isTestimonial = slider.classList.contains('testimonial-slider');
+    const getVisibleCount = () => {
+      if (!isTestimonial) return 1;
+      return window.innerWidth > 992 ? 3 : window.innerWidth > 768 ? 2 : 1;
+    };
+
+    const updateSlider = () => {
+      const visibleSlides = getVisibleCount();
+      const slideWidth = slides[0].offsetWidth;
+      
+      // Calculate movement including the gap (16px) if it's the testimonial slider
+      const gap = isTestimonial ? 16 : 0;
+      const moveDistance = index * (slideWidth + gap);
+
+      track.style.transform = `translateX(-${moveDistance}px)`;
+
+      // Update dots if they exist
+      if (dotsContainer) {
+        const dots = dotsContainer.querySelectorAll('.slider-dot');
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+      }
+    };
+
+    // Next Button
+    nextBtn?.addEventListener('click', () => {
+      const visibleSlides = getVisibleCount();
+      index = (index + 1) > (slides.length - visibleSlides) ? 0 : index + 1;
+      updateSlider();
+    });
+
+    // Prev Button
+    prevBtn?.addEventListener('click', () => {
+      const visibleSlides = getVisibleCount();
+      index = (index - 1) < 0 ? (slides.length - visibleSlides) : index - 1;
+      updateSlider();
+    });
+
+    // Initialize Dots
+    if (dotsContainer) {
+      dotsContainer.innerHTML = '';
+      slides.slice(0, slides.length - (getVisibleCount() - 1)).forEach((_, i) => {
+        const dot = document.createElement('span');
+        dot.className = `slider-dot${i === 0 ? ' active' : ''}`;
+        dot.addEventListener('click', () => {
+          index = i;
+          updateSlider();
+        });
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    // Handle Resize
+    window.addEventListener('resize', updateSlider);
+    
+    // Initial Run
+    updateSlider();
+  });
+};
+
+// Run when the page loads
+document.addEventListener('DOMContentLoaded', initSliders);
+
+//discount
+
